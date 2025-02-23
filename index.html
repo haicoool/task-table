@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tables</title>
+</head>
+<body>
+
+    <h2>Table 1</h2>
+    <table id="table1" border="1">
+        <tr><th>Index #</th><th>Value</th></tr>
+    </table>
+
+    <h2>Table 2</h2>
+    <table id="table2" border="1">
+        <tr><th>Category</th><th>Value</th></tr>
+    </table>
+
+    <script>
+        async function csvToTable() {
+            try {
+                const response = await fetch('Table_Input.csv');
+                const data = await response.text();
+                const rows = data.trim().split('\n').slice(1).map(line => line.split(',').map(e => e.trim()));
+
+                let values = Object.fromEntries(rows.map(([index, val]) => [index, parseInt(val, 10) || 0]));
+
+                document.getElementById("table1").innerHTML += rows.map(([index, val]) =>
+                    `<tr><td>${index}</td><td>${parseInt(val, 10) || 0}</td></tr>`).join('');
+
+                let calculations = {
+                    "Alpha": (values["A5"] || 0) + (values["A20"] || 0),
+                    "Beta": Math.floor((values["A15"] || 0) / (values["A7"] || 1)),
+                    "Charlie": (values["A13"] || 0) * (values["A12"] || 0)
+                };
+
+                document.getElementById("table2").innerHTML += Object.entries(calculations)
+                    .map(([index, val]) => `<tr><td>${index}</td><td>${val}</td></tr>`).join('');
+
+            } catch (error) {
+                console.error("Error loading CSV:", error);
+            }
+        }
+
+        csvToTable();
+    </script>
+
+</body>
+</html>
